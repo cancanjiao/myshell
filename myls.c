@@ -1,20 +1,19 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <dirent.h>
-#include <sys/types.h>
-#include <sys/stat.h>
+#include <dirent.h> //目录读取库
+#include <sys/types.h>//data type
+#include <sys/stat.h>//queue file staus lstat()
 #include <unistd.h>
 #include <string.h>
-#include <errno.h>
-#include <pwd.h>
-#include <grp.h>
+//#include <errno.h>
+#include <pwd.h>//getpwuid()  get usr message
+#include <grp.h>//getgrgid()  get group message
 #include <time.h>
 #include <stdbool.h>
 
 #define BUFFER_SIZE 1024
 
-void
-list_directory_brief (const char *path)
+void list_directory_brief (const char *path)
 {
   DIR *dir;
   struct dirent *entry;
@@ -22,14 +21,13 @@ list_directory_brief (const char *path)
   dir = opendir (path);
   if (dir == NULL)
     {
-      perror ("opendir");
+      printf("opendi rerror");
       return;
     }
 
   while ((entry = readdir (dir)) != NULL)
     {
-      if (strcmp (entry->d_name, ".") == 0
-	  || strcmp (entry->d_name, "..") == 0)
+      if (strcmp (entry->d_name, ".") == 0|| strcmp (entry->d_name, "..") == 0)
 	{
 	  continue;
 	}
@@ -39,20 +37,19 @@ list_directory_brief (const char *path)
   closedir (dir);
 }
 
-void
-list_directory_long (const char *path)
+void list_directory_long (const char *path)
 {
   DIR *dir;
-  struct dirent *entry;
-  struct stat statbuf;
-  char filepath[BUFFER_SIZE];
-  char timestr[64];
-  struct tm *tm_info;
+  struct dirent *entry; //目录结构体指针
+  struct stat statbuf; //文件状态信息
+  char filepath[BUFFER_SIZE]; //文件路径缓冲区
+  char timestr[64]; //时间字符串缓冲区
+  struct tm *tm_info;//本地时间信息指针
 
   dir = opendir (path);
   if (dir == NULL)
     {
-      perror ("opendir");
+      printf ("opendir  error");
       return;
     }
 
@@ -64,23 +61,24 @@ list_directory_long (const char *path)
 	  continue;
 	}
 
-      snprintf (filepath, BUFFER_SIZE, "%s/%s", path, entry->d_name);
+      snprintf (filepath, BUFFER_SIZE, "%s/%s", path, entry->d_name);//构建文件完整路径
 
       if (lstat (filepath, &statbuf) != 0)
 	{
-	  perror ("lstat");
+	  printf ("lstat error");//获取文件状态失败
 	  continue;
 	}
 
-      tm_info = localtime (&statbuf.st_mtime);
-      strftime (timestr, sizeof (timestr), "%Y-%m-%d %H:%M:%S", tm_info);
+      tm_info = localtime (&statbuf.st_mtime);//将修改时间转化成本地时间
+      strftime (timestr, sizeof (timestr), "%Y-%m-%d %H:%M:%S", tm_info);//格式化时间
 
       printf ("%s %u %s %s %10ld %s %s\n",
-	      (S_ISDIR (statbuf.st_mode)) ? "d" : "-",
-	      statbuf.st_mode & 0777,
-	      (getpwuid (statbuf.st_uid))->pw_name,
-	      (getgrgid (statbuf.st_gid))->gr_name,
-	      statbuf.st_size, timestr, entry->d_name);
+	      (S_ISDIR (statbuf.st_mode)) ? "d" : "-",//判断是目录还是普通文件
+	      statbuf.st_mode & 0777,//文件权限
+	      (getpwuid (statbuf.st_uid))->pw_name,//文件所有者的用户
+	      (getgrgid (statbuf.st_gid))->gr_name,//文件所属组的组名
+	      statbuf.st_size,//文件大小
+	      timestr, entry->d_name);//修改时间
     }
 
   closedir (dir);
