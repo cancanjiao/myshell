@@ -1,25 +1,49 @@
+#include <unistd.h>
+#include <sys/wait.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
-#include <sys/wait.h>
+#include <termios.h>
 
 #define MAX_LINE 80 // 允许的最大命令长度
 
+struct termios orig_termios;
+
+// 设置终端为原始模式
+void set_raw_mode() {
+    struct termios raw = orig_termios;
+    raw.c_lflag &= ~(ECHO | ICANON); // 关闭回显和规范模式
+    tcsetattr(STDIN_FILENO, TCSAFLUSH, &raw);
+}
+
+// 恢复终端的原始模式
+void reset_raw_mode() {
+    tcsetattr(STDIN_FILENO, TCSAFLUSH, &orig_termios);
+}
+
 // 读取用户输入的命令
 void read_command(char *command) {
-    // 打印提示符
+    int index = 0;
+    char c;
+
     printf("mysh> ");
     fflush(stdout);
 
-    // 读取输入命令
-    if (fgets(command, MAX_LINE, stdin) == NULL) {
-        printf("\n");
-        exit(0);
+    while (read(STDIN_FILENO, &c, 1) == 1 && c != '\n') {
+        if (c == 127 || c == '\b') { // 处理 Backspace 键
+            if (index > 0) {
+                index--;
+                printf("\b \b"); // 在终端上删除一个字符
+                fflush(stdout);
+            }
+        } else if (index < MAX_LINE - 1) {
+            command[index++] = c;
+            putchar(c);
+            fflush(stdout);
+        }
     }
-
-    // 移除换行符
-    command[strcspn(command, "\n")] = '\0';
+    command[index] = '\0';
+    putchar('\n');
 }
 
 // 执行用户输入的命令
@@ -58,8 +82,20 @@ void execute_command(char *command) {
     }
 }
 
+// 注册重置终端模式函数
+void exit_shell() {
+    reset_raw_mode();
+}
+
 int main() {
     char command[MAX_LINE];
+
+    // 获取并保存当前终端设置
+    tcgetattr(STDIN_FILENO, &orig_termios);
+    atexit(exit_shell);  // 注册重置终端模式的函数
+
+    // 设置终端为原始模式
+    set_raw_mode();
 
     // 主循环，不断读取和执行命令
     while (1) {
