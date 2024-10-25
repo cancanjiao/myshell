@@ -67,7 +67,7 @@ void execute_command(char *command) {
             strcmp(args[0], "rm") == 0 || strcmp(args[0], "pwd") == 0 ||
             strcmp(args[0], "wc") == 0) {
             char exec_path[100];
-            snprintf(exec_path, sizeof(exec_path), "./my%s", args[0]);
+            snprintf(exec_path, sizeof(exec_path), "/home/wangshuhao/code/myshellcode/my%s", args[0]);
             execvp(exec_path, args);
         } else {
             printf("Unknown command: %s\n", args[0]);
