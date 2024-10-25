@@ -24,9 +24,10 @@ int main(int argc, char **argv) {
             lines++;
     }
 
-    printf("%d %d %d %s\n", lines, words, chars, argv[1]);  // 输出统计结果
+    // 输出统计结果，并添加单位
+    printf("%d lines, %d words, %d characters in '%s'\n", lines, words, chars, argv[1]);
+    
     fclose(file);
-
     return 0;  // 返回成功状态
 }
 

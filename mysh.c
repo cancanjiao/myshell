@@ -25,8 +25,7 @@ void reset_raw_mode() {
 void read_command(char *command) {
     int index = 0;
     char c;
-
-    printf("mysh> ");
+    printf("wangshuhao@mysh> ");
     fflush(stdout);
 
     while (read(STDIN_FILENO, &c, 1) == 1 && c != '\n') {
@@ -48,6 +47,8 @@ void read_command(char *command) {
 
 // 执行用户输入的命令
 void execute_command(char *command) {
+    // 在执行外部命令前先恢复终端模式
+    tcsetattr(STDIN_FILENO, TCSAFLUSH, &orig_termios);
     pid_t pid = fork(); // 创建子进程
     if (pid == 0) {
         // 子进程执行
@@ -80,6 +81,8 @@ void execute_command(char *command) {
         // fork失败处理
         perror("fork");
     }
+    // 在外部命令执行后重新设置终端为原始模式
+    set_raw_mode();
 }
 
 // 注册重置终端模式函数
