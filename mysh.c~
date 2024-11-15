@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <termios.h>
-#include "mycd.h"
+#include "mycd.c"
 
 #define MAX_LINE 80		// 允许的最大命令长度
 
@@ -155,7 +155,8 @@ main ()
 	      i++;
 	      args[i] = strtok (NULL, " ");
 	    }
-	  mycd (i,args);
+	  args[0] = sizeof (command);
+	  mycd (args);
 	}
       else
 	{

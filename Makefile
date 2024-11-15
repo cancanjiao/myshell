@@ -1,9 +1,15 @@
 CC=gcc
 
-all: mysh myls myecho mycat mymkdir myrm mycd mypwd mywc
+all: myls myecho mycat mymkdir myrm  mypwd mywc 2220223125_mysh
 
-mysh: mysh.c
-	$(CC) -o mysh mysh.c
+2220223125_mysh: mysh.o mycd.o
+	$(CC) -o 2220223125_mysh mysh.o mycd.o
+
+mysh.o: mysh.c
+	$(CC) -c mysh.c
+
+mycd.o: mycd.c
+	$(CC) -c mycd.c
 
 myls: myls.c
 	$(CC) -o myls myls.c
@@ -20,15 +26,10 @@ mymkdir: mymkdir.c
 myrm: myrm.c
 	$(CC) -o myrm myrm.c
 
-mycd: mycd.c
-	$(CC) -o mycd mycd.c
-
 mypwd: mypwd.c
 	$(CC) -o mypwd mypwd.c
 
 mywc: mywc.c
 	$(CC) -o mywc mywc.c
-
 clean:
-	rm -f mysh myls myecho mycat mymkdir myrm mycd mypwd mywc
-
+	rm -f *.o 2220223125_mysh myls myecho mycat mymkdir myrm mypwd mywc
