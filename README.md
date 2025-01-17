@@ -1,6 +1,14 @@
 # myshell
 实验：
 自己编写一个简单的shell
+run:
+make clean
+make
+./mysh
+
+exit:(input in mysh)
+exit 
+
 <<<<<<< HEAD
 
 实验二： Linux 命令环境下 C/C++语言实践
